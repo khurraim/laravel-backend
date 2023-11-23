@@ -23,6 +23,10 @@ return new class extends Migration
             $table->text('modelDescription');
             $table->bigInteger('age');
             $table->text('weight');
+
+            $table->text('height');
+            $table->text('phone_no');
+
             $table->string('nationality');
             $table->string('dressSize');
             $table->bigInteger('price');

@@ -17,6 +17,9 @@ use App\Http\Controllers\FormGroupController;
 use App\Http\Controllers\SocialIconsController;
 use App\Http\Controllers\ContactController;
 
+use App\Http\Controllers\FAQController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +67,9 @@ Route::get('models/unique-locations', [ModelController::class, 'uniqueLocations'
 
 // Unique Dress Size
 Route::get('models/unique-dress-sizes', [ModelController::class, 'uniqueDressSizes']);
+
+// Unique Heights
+Route::get('models/unique-heights', [ModelController::class, 'uniqueHeights']);
 
 // Unique Rates 
 Route::get('/models/rates/{id}',[ModelController::class, 'uniqueRates']);
@@ -181,3 +187,7 @@ Route::get('/contacts/{id}', [ContactController::class, 'show']);
 Route::post('/contacts', [ContactController::class, 'store']);
 Route::put('/contacts/{id}', [ContactController::class, 'update']);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy']);
+
+
+
+Route::apiResource('faqs', FAQController::class);

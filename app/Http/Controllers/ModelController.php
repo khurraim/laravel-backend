@@ -113,6 +113,8 @@ class ModelController extends Controller
                 'subLocation' => 'required|string',
                 'age' => 'required',
                 'weight' => 'required|string',
+                'height' => 'required|string',
+                'phone_no' => 'required|string',
                 'nationality' => 'required|string',
                 'dressSize' => 'required|string',
                 'price' => 'required',
@@ -151,6 +153,8 @@ class ModelController extends Controller
                 'featuredImage' => $featuredImagePath,
                 'video' => $videoPath,
                 'price' => $data['price'],
+                'height' => $data['height'],
+                'phone_no' => $data['phone_no'],
                 'created_by' => 'admin'
             ]);
 
@@ -221,6 +225,8 @@ class ModelController extends Controller
                 'subLocation' => 'required|string',
                 'age' => 'required',
                 'weight' => 'required|string',
+                'height' => 'required|string',
+                'phone_no' => 'required|string',
                 'nationality' => 'required|string',
                 'dressSize' => 'required|string',
                 'price' => 'required',
@@ -259,6 +265,8 @@ class ModelController extends Controller
                 'video' => $videoPath,
                 'price' => $data['price'],
                 'weight' => $data['weight'],
+                'height' => $data['height'],
+                'phone_no' => $data['phone_no'],
                 'created_by' => 'user'
             ]);
 
@@ -359,78 +367,91 @@ class ModelController extends Controller
     // }
 
     public function index(Request $request)
-{
-    $requestedAges = $request->input('age');
-    $requestedNationality = $request->input('nationality');
-    $requestedPrice = $request->input('price');
-    $requestedLocation = $request->input('location');
-    $requestedDressSize = $request->input('dressSize');
+    {
+        $requestedAges = $request->input('age');
+        $requestedNationality = $request->input('nationality');
+        $requestedPrice = $request->input('price');
+        $requestedLocation = $request->input('location');
+        $requestedDressSize = $request->input('dressSize');
+        $requestedHeight = $request->input('height');
 
-    // Start with all models
-    $query = NewModel::query();
+        // Start with all models
+        $query = NewModel::query()->where('created_by','admin');
 
-    if (!empty($requestedAges) && strpos($requestedAges, 'all') === false) {
-        // Convert comma-separated string to an array
-        $agesArray = explode(',', $requestedAges);
-        $query->whereIn('age', $agesArray);
-    }
+        if (!empty($requestedAges) && strpos($requestedAges, 'all') === false) {
+            // Convert comma-separated string to an array
+            $agesArray = explode(',', $requestedAges);
+            $query->whereIn('age', $agesArray);
+        }
 
-    if (!empty($requestedNationality) && strpos($requestedNationality, 'all') === false) {
-        // Convert comma-separated string to an array
-        $nationalitiesArray = explode(',', $requestedNationality);
+        if (!empty($requestedNationality) && strpos($requestedNationality, 'all') === false) {
+            // Convert comma-separated string to an array
+            $nationalitiesArray = explode(',', $requestedNationality);
+            
+            // Use nested orWhere clauses for nationality
+            $query->where(function ($query) use ($nationalitiesArray) {
+                foreach ($nationalitiesArray as $nationality) {
+                    $query->orWhere('nationality', $nationality);
+                }
+            });
+        }
+
+        if (!empty($requestedPrice) && strpos($requestedPrice, 'all') === false) {
+            // Convert comma-separated string to an array
+            $pricesArray = explode(',', $requestedPrice);
+            
+            // Use nested orWhere clauses for nationality
+            $query->where(function ($query) use ($pricesArray) {
+                foreach ($pricesArray as $price) {
+                    $query->orWhere('price', $price);
+                }
+            });
+        }
+
+        if (!empty($requestedLocation) && strpos($requestedLocation, 'all') === false) {
+            // Convert comma-separated string to an array
+            $locationArray = explode(',', $requestedLocation);
+            
+            // Use nested orWhere clauses for nationality
+            $query->where(function ($query) use ($locationArray) {
+                foreach ($locationArray as $location) {
+                    $query->orWhere('location', $location);
+                }
+            });
+        }
+
+        if (!empty($requestedHeight) && strpos($requestedHeight, 'all') === false) {
+            // Convert comma-separated string to an array
+            $heightArray = explode(',', $requestedHeight);
+            
+            // Use nested orWhere clauses for nationality
+            $query->where(function ($query) use ($heightArray) {
+                foreach ($heightArray as $height) {
+                    $query->orWhere('height', $height);
+                }
+            });
+        }
+
         
-        // Use nested orWhere clauses for nationality
-        $query->where(function ($query) use ($nationalitiesArray) {
-            foreach ($nationalitiesArray as $nationality) {
-                $query->orWhere('nationality', $nationality);
-            }
-        });
+
+        // Filter by price if it's not 'all'
+        // if ($requestedPrice !== 'all') {
+        //     $query->where('price', $requestedPrice);
+        // }
+
+        // if ($requestedLocation !== 'all') {
+        //     $query->where('location', $requestedLocation);
+        // }
+
+        // if ($requestedDressSize !== 'all') {
+        //     $query->where('dressSize', $requestedDressSize);
+        // }
+
+        // Get the filtered models
+        $models = $query->get();
+
+        return response()->json($models, 200);
     }
-
-    if (!empty($requestedPrice) && strpos($requestedPrice, 'all') === false) {
-        // Convert comma-separated string to an array
-        $pricesArray = explode(',', $requestedPrice);
-        
-        // Use nested orWhere clauses for nationality
-        $query->where(function ($query) use ($pricesArray) {
-            foreach ($pricesArray as $price) {
-                $query->orWhere('price', $price);
-            }
-        });
-    }
-
-    if (!empty($requestedLocation) && strpos($requestedLocation, 'all') === false) {
-        // Convert comma-separated string to an array
-        $locationArray = explode(',', $requestedLocation);
-        
-        // Use nested orWhere clauses for nationality
-        $query->where(function ($query) use ($locationArray) {
-            foreach ($locationArray as $location) {
-                $query->orWhere('location', $location);
-            }
-        });
-    }
-
-    
-
-    // Filter by price if it's not 'all'
-    // if ($requestedPrice !== 'all') {
-    //     $query->where('price', $requestedPrice);
-    // }
-
-    // if ($requestedLocation !== 'all') {
-    //     $query->where('location', $requestedLocation);
-    // }
-
-    if ($requestedDressSize !== 'all') {
-        $query->where('dressSize', $requestedDressSize);
-    }
-
-    // Get the filtered models
-    $models = $query->get();
-
-    return response()->json($models, 200);
-}
 
 
 
@@ -514,6 +535,15 @@ class ModelController extends Controller
         return response()->json($DressSizeWithCount, 200);
     }
 
+    public function uniqueHeights()
+    {
+        $HeightWithCount = NewModel::select('height', DB::raw('count(*) as count'))
+        ->groupBy('height')
+        ->get();
+
+        return response()->json($HeightWithCount, 200);
+    }
+
     public function uniqueRates($id)
     {
         $rates = AddRate::where('model_id',$id)->get();
@@ -545,6 +575,8 @@ class ModelController extends Controller
             'nationality' => 'required',
             'weight' => 'required',
             'age' => 'required',
+            'height' => 'required',
+            'phone_no' => 'required',
             'dressSize' => 'required',
             'addRate' => 'required|array', // Add this rule for 'addRate'
             'addRate.*.duration' => 'required|string', // Validation for 'duration' within 'addRate'
@@ -566,7 +598,9 @@ class ModelController extends Controller
                 'subLocation' => $request->subLocation,
                 'nationality' => $request->nationality,
                 'dressSize' => $request->dressSize,
-                'weight' => $request->weight
+                'weight' => $request->weight,
+                'height' => $request->height,
+                'phone_no' => $request->phone_no
             ]);
 
             // Handle image upload and update
